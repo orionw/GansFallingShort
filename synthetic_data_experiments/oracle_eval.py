@@ -7,7 +7,7 @@ import tensorboardX
 from oracle_training import main as train
 import __init__
 import sys
-
+import pandas as pd
 from common.utils  import * 
 from common.data   import * 
 from common.models import * 
@@ -126,6 +126,7 @@ class Model_eval:
 
     def log(self):
         writer = tensorboardX.SummaryWriter(self.args.base_dir)
+        list_of_results = []
         for alpha in TEMPERATURES:
             nll_test = self.nll_test[alpha]
             nll_oracle = self.nll_oracle[alpha]
@@ -134,8 +135,11 @@ class Model_eval:
             print_and_log_scalar(writer, 'eval_more_t/nll_oracle', nll_oracle, alpha)
             print_and_log_scalar(writer, 'eval_more_t/nll_test',   nll_test,  alpha)
             print_and_log_scalar(writer, 'eval_more_t/final_obj',  final_obj, alpha)
+            list_of_results.append({"nll_oracle": nll_oracle, "nll_test": nll_test, "alpha": alpha})
             print('')
-            
+        results = pd.DataFrame(list_of_results)
+        results.to_csv(os.path.join(self.args.base_dir, "oracle_results.csv")) 
+
     def __call__(self):
         print('processing model %s' % self.name)    
         self.get_trained_models()
@@ -304,7 +308,7 @@ if __name__ == '__main__':
     # models = [best_gan_but_volatile, best_mle, best_gan, best_gan_mle]
     # models = [best_gan_beta, best_gan_beta_cvo]
     # models = [best_mle_cvt, best_gan, best_gan_cvo, best_gan_mle, best_gan_beta, best_gan_beta_cvo]
-    models = [best_cot_cvt] 
+    models = [best_mle_cvt] 
     for model in models:
         model()
 
