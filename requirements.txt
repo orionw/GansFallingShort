@@ -1,0 +1,4 @@
+torch==0.4.1
+pandas==0.24.2
+tensorboard
+tensorboardX
